@@ -386,25 +386,29 @@ class TLSContextFactory:
                     if ctx.get('hosts'):  # not None and not the empty list
                         found_termination_context = True
 
-        if ir.edge_stack_allowed and not found_termination_context:
-            # Edge Stack always wants a termination context
-            ctx_name = "fallback-self-signed-context"
-            tls_name = "fallback-self-signed-cert"
+        if ir.edge_stack_allowed:
+            # We're running Edge Stack. If we have no termination contexts and we
+            # have no Hosts...
+            if not found_termination_context and not ir.get_hosts():
+                # ...then we know that this is an unconfigured installation, so let's set
+                # up the fallback TLSContext so we can redirect people to the UI.
+                ctx_name = "fallback-self-signed-context"
+                tls_name = "fallback-self-signed-cert"
 
-            new_ctx = dict(
-                rkey=f"{ctx_name}.99999",
-                name=ctx_name,
-                location="-internal-",
-                hosts=["*"],
-                secret=tls_name,
-                is_fallback=True
-            )
+                new_ctx = dict(
+                    rkey=f"{ctx_name}.99999",
+                    name=ctx_name,
+                    location="-internal-",
+                    hosts=["*"],
+                    secret=tls_name,
+                    is_fallback=True
+                )
 
-            if not os.environ.get('AMBASSADOR_NO_TLS_REDIRECT', None):
-                new_ctx['redirect_cleartext_from'] = 8080
+                if not os.environ.get('AMBASSADOR_NO_TLS_REDIRECT', None):
+                    new_ctx['redirect_cleartext_from'] = 8080
 
-            ctx = IRTLSContext(ir, aconf, **new_ctx)
+                ctx = IRTLSContext(ir, aconf, **new_ctx)
 
-            assert ctx.is_active()
-            if ctx.resolve_secret(tls_name):
-                ir.save_tls_context(ctx)
+                assert ctx.is_active()
+                if ctx.resolve_secret(tls_name):
+                    ir.save_tls_context(ctx)
