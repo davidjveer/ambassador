@@ -561,8 +561,9 @@ class V2VirtualHost(dict):
         if self._ctx:
             match["transport_protocol"] = "tls"
 
-        if enable_sni and self._ctx and self._hostname and (self._hostname != '*'):
-            match["server_names"] = [ self._hostname ]
+        # if enable_sni and self._ctx and self._hostname and (self._hostname != '*'):
+        if self._hostname and (self._hostname != '*'):
+                match["server_names"] = [ self._hostname ]
 
         self["filter_chain_match"] = match
 
