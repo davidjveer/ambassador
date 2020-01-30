@@ -1,5 +1,8 @@
 *.version
 *.tmp
+*.log
+*.stamp
+*.o
 .git
 *.egg-info
 __pycache__
@@ -7,6 +10,7 @@ __pycache__
 .mypy_cache
 .dmypy.json
 go.sum
+bin/
 /Makefile
 /builder/
 /bin_linux_amd64/
@@ -14,3 +18,5 @@ go.sum
 /cxx/envoy/
 /ambassador/
 /vendor/
+/aes-example-plugins/
+/docker/
